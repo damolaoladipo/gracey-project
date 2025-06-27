@@ -1,4 +1,4 @@
-import express, { Request, Response } from "express";
+import { Request, Response } from "express";
 import Note from "../models/notes";
 import Category from "../models/category.model";
 
@@ -18,7 +18,7 @@ export const createNotes = async (
 
 export const getNotes = async (req: Request, res: Response): Promise<void> => {
   try {
-    const notes = await Note.find();
+    const notes = await Note.find().sort({ createdAt: -1 });
     res.status(200).json(notes);
   } catch (error) {
     res.status(500).json({ message: "Could not find notes!" });
@@ -26,9 +26,13 @@ export const getNotes = async (req: Request, res: Response): Promise<void> => {
 };
 
 export const getNote = async (req: Request, res: Response): Promise<void> => {
+  console.log(req.user);
   try {
     const { id } = req.params;
     const note = await Note.findById(id);
+    if (!note) {
+      res.status(404).json({ message: "note not found!" });
+    }
     res.status(200).json(note);
   } catch (error) {
     res.status(500).json({ message: "Note unavailable!" });
@@ -41,10 +45,15 @@ export const deleteNote = async (
 ): Promise<void> => {
   try {
     const { id } = req.params;
-    const note = await Note.deleteOne({ _id: id });
-    res.status(200).json(note);
+    const note = await Note.findById(id);
+    if (!note) {
+      res.status(404).json({ message: "Note not found!" });
+    }
+    await Note.deleteOne({ _id: id });
+    res.status(200).json({});
   } catch (error) {
-    res.status(500).json({ message: "Note unavailable!" });
+    res.status(500).json({ message: "server error" });
+    console.log(error);
   }
 };
 
@@ -63,14 +72,17 @@ export const updateNote = async (
   }
 };
 
-export const createCategories = async (req: Request, res: Response): Promise<void>=>{
-    try {
-        const {name} = req.body
-        const newCategory = new Category({name})
-        await newCategory.save()
-        res.status(200).json({message: "categories successfully created!"})
-    } catch (error) {
-        console.log(error)
-        res.status(500).json({message: "Error creating Category!"});
-    }
-}
+export const createCategories = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    const { name } = req.body;
+    const newCategory = new Category({ name });
+    await newCategory.save();
+    res.status(200).json({ message: "categories successfully created!" });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: "Error creating Category!" });
+  }
+};

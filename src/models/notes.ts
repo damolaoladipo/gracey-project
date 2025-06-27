@@ -1,5 +1,4 @@
 import mongoose, { Schema } from "mongoose";
-import Category from './category.model';
 
 const notesSchema = new Schema(
   {
@@ -23,10 +22,21 @@ const notesSchema = new Schema(
       type: String,
       default: "inherit",
     },
-    Category: {
-        type: Schema.Types.ObjectId,
-        ref:  'Category',
-    }
+    favourite: {
+      type: Boolean,
+      default: false,
+    },
+    category: {
+      type: String,
+      default: "personal",
+      enum: ["personal", "work", "study", "business", "random"],
+    },
+    createdAt: {
+      type: String,
+    },
+    updatedAt: {
+      type: String,
+    },
   },
   { timestamps: true }
 );
