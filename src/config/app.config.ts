@@ -13,7 +13,7 @@ app.use("/api/notes", noteRoutes);
 app.use("/api/auth", authRoutes);
 
 app.get("/", (req: Request, res: Response, next: NextFunction) => {
-  res.status(200).render("health-check", {
+  res.status(200).json({
     error: false,
     errors: [],
     data: {
